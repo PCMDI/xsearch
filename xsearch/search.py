@@ -169,6 +169,15 @@ def filter_dpaths(dpaths, modelData, crit):
 
 
 def getcomputePerformanceEstimates(dpaths):
+    """
+    getcomputePerformanceEstimates(dpaths)
+
+    Function takes an xsearch dictionary and adds (in-place) the computed kerchunk_speed_advantage_s
+    field to each dictionary item.
+
+    Inputs:
+        dpaths         xsearch dictionary
+    """
     kadvantage = []
     kcoefs = np.array([0.008207831318563355, 2.3290923228365576, -0.0016176099880911288, 4.158037152518663])
     ncoefs = np.array([0.20370503147140648, 1.317777135191048, -0.0014903054405792648, 1.865448989257267])
