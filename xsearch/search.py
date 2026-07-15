@@ -168,6 +168,42 @@ def filter_dpaths(dpaths, modelData, crit):
     return OutList
 
 
+def getcomputePerformanceEstimates(dpaths):
+    """
+    getcomputePerformanceEstimates(dpaths)
+
+    Function takes an xsearch dictionary and adds (in-place) the computed kerchunk_speed_advantage_s
+    field to each dictionary item.
+
+    Inputs:
+        dpaths         xsearch dictionary
+    """
+    kadvantage = []
+    kcoefs = np.array([0.008207831318563355, 2.3290923228365576, -0.0016176099880911288, 4.158037152518663])
+    ncoefs = np.array([0.20370503147140648, 1.317777135191048, -0.0014903054405792648, 1.865448989257267])
+    # Time_kerchunk = 0.008207831318563355 x n_f + 2.3290923228365576 x s_gb + -0.0016176099880911288 x n_time + 4.158037152518663
+    # Time_netcdf = 0.20370503147140648 x n_f + 1.317777135191048 x s_gb + -0.0014903054405792648 x n_time + 1.865448989257267
+    for key in dpaths.keys():
+        # skip if no json file
+        if dpaths[key]['json_file'] == None:
+            dpaths[key]['kerchunk_speed_advantage_s'] = None
+            continue    
+        # get predictors
+        nf = dpaths[key]['nfiles']
+        sgb = dpaths[key]['sumfilesize_bytes']/1024**3
+        nt = dpaths[key]['timepoints']
+        # create predictor array
+        mults = np.array([nf, sgb, nt, 1])
+        # make predictions
+        tk = np.sum(mults * kcoefs)
+        tn = np.sum(mults * ncoefs)
+        # compute speed advantage (if any)
+        dt = float(tn - tk)
+        if dt < 0:
+            dt = None
+        dpaths[key]['kerchunk_speed_advantage_s'] = dt
+
+
 def findPaths(experiment,
               variable,
               frequency,
@@ -212,6 +248,10 @@ def findPaths(experiment,
                                 dictionary with keys as the datasets. In the dictionary, each entry contains a dictionary
                                 entry with metadata for that dataset. If applicable, alternate_paths are also listed
                                 and whether the dataset was uniquely chosen based on the filter criteria.
+
+    Notes:
+        kerchunk_speed_advantage_s is an estimate of the speed advantage (in seconds) of kerchunk to perform
+        routine xcdat operations (opening the dataset, computing annual means, and loading results).
     """
     # define json file search
     fn = jsonDir + experiment + '/' + variable + '.json'
@@ -342,6 +382,7 @@ def findPaths(experiment,
             if len(ap) > 1:
                 for p in ap:
                     print('     duplicate: ' + p)
+    getcomputePerformanceEstimates(pathDict)
     if fullMetadata:
         return pathDict
     else:
