@@ -9,7 +9,7 @@ setup(
     version=version,
     author="@pochedls",
     description="xsearch search utility",
-    url="https://github.com/pochedls/xsearch",
+    url="https://github.com/PCMDI/xsearch",
     packages=packages,
 )
 
