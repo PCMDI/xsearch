@@ -321,14 +321,14 @@ def findPaths(experiment,
     for dpath in rmpaths:
         data.pop(dpath)
     # if filter not specified, get all possible values
-    for key in ['activity', 'cmipTable', 'realm', 'variable', 'experiment', 'frequency']:
+    for key in ['activity', 'cmipTable', 'realm', 'variable', 'experiment', 'frequency', 'suffix']:
         if key not in filterDict.keys():
             filterDict[key] = getGroupValues(data, key)
     # get model list
     models = getGroupValues(data, 'model')
     # warn user that some datasets have multiple attributes
     if verbose:
-        for key in ['activity', 'cmipTable', 'realm', 'variable', 'experiment', 'frequency']:
+        for key in ['activity', 'cmipTable', 'realm', 'variable', 'experiment', 'frequency', 'suffix']:
             if ((len(filterDict[key]) > 1) & (key not in kwargs.keys())):
                 print('Multiple values for ' + key + '. Consider filtering by ' + key + '.')
                 print('Available values: ' + ', '.join(filterDict[key]))
